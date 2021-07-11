@@ -217,7 +217,7 @@ function NewReservation({ loadDashboard, edit }) {
       <button className="btn btn-primary m-1" type="submit" onClick={handleSubmit}>
         Submit
       </button>
-      <button className="btn btn-secondary m-1" type="cancel" onClick={history.goBack}>
+      <button className="btn btn-secondary m-1" type="cancel" onClick={() => history.push(`/dashboard`)}>
         Cancel
       </button>
     </form>

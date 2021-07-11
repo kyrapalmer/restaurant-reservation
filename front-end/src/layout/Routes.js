@@ -6,10 +6,11 @@ import NotFound from "./NotFound";
 import useQuery from "../utils/useQuery";
 
 import Dashboard from "../dashboard/Dashboard";
-import NewReservation from "../Reservations/create";
+import NewReservation from "../Reservations/NewReservation";
 import SeatReservation from "../Reservations/SeatReservation";
 import Search from "../Search/search";
-import CreateTable from "../Tables/create";
+import NewTable from "../Tables/NewTable";
+import { today } from "../utils/date-time";
 
 
 /**
@@ -22,13 +23,13 @@ import CreateTable from "../Tables/create";
 function Routes() {
 
   const query = useQuery();
-  const date = query.get("date");
+  const date = query.get("date") ? query.get("date") : today();
 
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
 
   const [tables, setTables] = useState([]);
-  const [tablesError, setTablesErrors] = useState([]);
+  const [tablesError, setTablesErrors] = useState(null);
 
   useEffect(loadDashboard, [date]);
 
@@ -51,10 +52,10 @@ function Routes() {
   return (
     <Switch>
       <Route exact={true} path="/">
-        <Redirect to={"/dashboard"} />
+        <Redirect to={`/dashboard`} />
       </Route>
       <Route exact={true} path="/reservations">
-        <Redirect to={"/dashboard"} />
+        <Redirect to={`/dashboard`} />
       </Route>
       <Route exact={true} path="/reservations/new">
         <NewReservation 
@@ -63,18 +64,18 @@ function Routes() {
       </Route>
       <Route exact={true} path="/reservations/:reservation_id/edit">
         <NewReservation 
-          edit={true}
           loadDashboard={loadDashboard}
+          edit={true}
         />
       </Route>
       <Route path="/reservations/:reservation_id/seat">
         <SeatReservation 
-          loadDashboard={loadDashboard}
           tables={tables}
+          loadDashboard={loadDashboard}
         />
       </Route>
       <Route path="/tables/new">
-        <CreateTable
+        <NewTable
           loadDashboard={loadDashboard}
         />
       </Route>

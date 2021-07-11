@@ -44,7 +44,7 @@ function find(tableId) {
 function reset(tableId) {
   return knex("tables")
     .where({ table_id: tableId })
-    .update({ reservation_id: null });
+    .update({ reservation_id: null, status: "free" });
 }
 
 module.exports = {

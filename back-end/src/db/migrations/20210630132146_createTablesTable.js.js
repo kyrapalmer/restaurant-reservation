@@ -6,8 +6,7 @@ exports.up = function(knex) {
     table.integer("capacity").notNullable();
     table.string("status");
     table.integer("reservation_id").unsigned();
-    table
-        .foreign("reservation_id")
+    table.foreign("reservation_id")
         .references("reservation_id")
         .inTable("reservations")
         .onDelete("SET NULL");

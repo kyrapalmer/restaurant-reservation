@@ -16,9 +16,9 @@ async function validateTable(req, res, next) {
   const { table_id } = req.params;
   const table = await service.find(table_id);
   if (!table) {
-    next({
+    return next({
       status: 404,
-      message: `Table id: ${table_id} not found`,
+      message: `table id: ${table_id} not found`,
     });
   }
   res.locals.table = table;
@@ -28,7 +28,7 @@ async function validateTable(req, res, next) {
 function validateResId(req, res, next) {
   const resId = req.body.data.reservation_id;
   if (!resId) {
-    next({
+    return next({
       status: 400,
       message: "body must have reservation_id.",
     });
@@ -43,12 +43,12 @@ function validateName(req, _res, next) {
     if (tableName.length !== 1) {
       return next();
     }
-    next({
+    return next({
       status: 400,
       message: `${tableName} is not a valid table_name`,
     });
   }
-  next({
+  return next({
     status: 400,
     message: "data must include a table_name.",
   });
@@ -60,12 +60,12 @@ function isValidCapacity(req, _res, next) {
     if (capacity > 0) {
       return next();
     }
-    next({
+    return next({
       status: 400,
       message: `${capacity} is not a valid capacity`,
     });
   }
-  next({
+  return next({
     status: 400,
     message: "data must include a capacity value",
   });
@@ -73,7 +73,7 @@ function isValidCapacity(req, _res, next) {
 
 async function occupied(_req, res, next) {
   if (res.locals.table.reservation_id) {
-    next({
+    return next({
       status: 400,
       message: `table is occupied.`,
     });
@@ -83,10 +83,20 @@ async function occupied(_req, res, next) {
 
 function notOccupied(_req, res, next) {
   if (!res.locals.table.reservation_id) {
-    next({
+    return next({
       status: 400,
       message: `table is not occupied`,
     });
+  }
+  next();
+}
+
+function validateSeatedTable(req, res, next) {
+  if (res.locals.table.status !== "occupied") {
+    return next({
+      status: 400,
+      message: `this table is not occupied`
+    })
   }
   next();
 }
@@ -114,7 +124,7 @@ async function resExists(req, res, next) {
     const { reservation_id } = req.body.data;
   const reservation = await service.read(reservation_id);
   if (!reservation) {
-    next({
+    return next({
       status: 404,
       message: `reservation ${reservation_id} does not exist`,
     });
@@ -125,18 +135,18 @@ async function resExists(req, res, next) {
 
 // ---------- CRUD functions -----------
 
-async function list(_req, res) {
+async function list(_req, res, _next) {
   const queryResult = await service.list();
   return res.json({ data: queryResult });
 }
 
-async function create(req, res) {
+async function create(req, res, _next) {
   const data = req.body.data;
   const queryResult = await service.create(data);
   return res.status(201).json({ data: queryResult[0] });
 }
 
-async function update(req, res, next) {
+async function update(_req, res, next) {
     await service.seat(res.locals.table.table_id, res.locals.reservation.reservation_id);
     await service.updateRez(res.locals.reservation.reservation_id, "seated");
 
@@ -144,7 +154,7 @@ async function update(req, res, next) {
 //     await service.updateStatus(queryResult[0], "seated");
 //   }
   if (res.locals.reservation.status === "seated") {
-    next({
+    return next({
       status: 400,
       message: "table status : seated",
     });
@@ -152,31 +162,32 @@ async function update(req, res, next) {
   res.json({ data: { status: "seated"} });
 }
 
-async function reset(req, res) {
-  const queryResult = await service.reset(req.params.table_id);
-  await service.updateStatus(res.locals.table, "finished");
-  res.status(200).json({ data: queryResult[0] });
+async function reset(_req, res, _next) {
+  await service.updateRez(res.locals.table.reservation_id, "finished");
+  await service.reset(res.locals.table.table_id);
+  
+  res.status(200).json({ data: { status: "finished" } });
 }
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
   create: [
-    validateData,
-    validateName,
-    isValidCapacity,
+    asyncErrorBoundary(validateData),
+    asyncErrorBoundary(validateName),
+    asyncErrorBoundary(isValidCapacity),
     asyncErrorBoundary(create),
   ],
   update: [
-    validateData,
-    validateResId,
+    asyncErrorBoundary(validateData),
+    asyncErrorBoundary(validateResId),
     asyncErrorBoundary(resExists),
     asyncErrorBoundary(validateCapacity),
-    occupied,
+    asyncErrorBoundary(occupied),
     asyncErrorBoundary(update),
   ],
   delete: [
     asyncErrorBoundary(validateTable),
-    notOccupied,
+    asyncErrorBoundary(validateSeatedTable),
     asyncErrorBoundary(reset),
   ],
 };

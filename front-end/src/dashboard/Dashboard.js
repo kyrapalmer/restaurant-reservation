@@ -18,12 +18,14 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
   
 
   const reservationsJSX = () => {
-    return reservations.map((reservation) => <ReservationRow key={reservation.reservation_id} reservation={reservation} loadDashboard={loadDashboard}/>)
-  }
+		return reservations.map((reservation) => 
+			<ReservationRow key={reservation.reservation_id} reservation={reservation} loadDashboard={loadDashboard} />);
+	};
 
-  const tablesJSX = () => {
-    return tables.map((table) => <TableRow key={table.table_id} table={table} loadDashboard={loadDashboard}/>)
-  }
+	const tablesJSX = () => {
+		return tables.map((table) => 
+			<TableRow key={table.table_id} table={table} loadDashboard={loadDashboard} />);
+	};
 
   function handleClick({ target }) {
     let newDate;
@@ -49,57 +51,62 @@ function Dashboard({ date, reservations, reservationsError, tables, tablesError,
 
   return (
     <main>
-      <h1>Dashboard</h1>
+		<h1>Dashboard</h1>
 
-      <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for {date}</h4>
-      </div>
+		<h4 className="mb-0">Reservations for {date}</h4>
 
-      <button className="btn btn-secondary m-1" type="button" name="previous" onClick={handleClick}>Previous</button>
-      <button className="btn btn-primary m-1" type="button" name="today" onClick={handleClick}>Today</button>
-      <button className="btn btn-secondary m-1" type="button" name="next" onClick={handleClick}>Next</button>
+				<button className="btn btn-secondary m-1" type="button" name="previous" onClick={handleClick}>Previous</button>
+				<button className="btn btn-primary m-1" type="button" name="today" onClick={handleClick}>Today</button>
+				<button className="btn btn-secondary m-1" type="button" name="next" onClick={handleClick}>Next</button>
+				
+				<ErrorAlert error={reservationsError} />
 
-      <ErrorAlert error={reservationsError} />
+				<table className="table table-hover m-1">
+					<thead className="thead-light">
+						<tr>
+							<th scope="col">ID</th>
+							<th scope="col">First Name</th>
+							<th scope="col">Last Name</th>
+							<th scope="col">Mobile Number</th>
+							<th scope="col">Date</th>
+							<th scope="col">Time</th>
+							<th scope="col">People</th>
+							<th scope="col">Status</th>
+							<th scope="col">Edit</th>
+							<th scope="col">Cancel</th>
+							<th scope="col">Seat</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						{reservationsJSX()}
+					</tbody>
+				</table>
+		
+				<br />
+				<br />
 
-      <table className="table table-hover m-1">
-        <thead className="thead-light m-1">
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Mobile Number</th>
-            <th scope="col">Time</th>
-            <th scope="col">Party</th>
-            <th scope="col">Status</th>
-            <th scope="col">Edit</th>
-						<th scope="col">Cancel</th>
-            <th scope="col">Seat Table</th>         
-          </tr>
-        </thead>
-        <tbody>
-            {reservationsJSX()}
-        </tbody>
-      </table>
+				<h4 className="mb-0">Tables</h4>
 
-      <br />
+				<ErrorAlert error={tablesError} />
 
-      <table className="table table-hover m-1">
-        <thead className="thead-light">
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Table Name</th>
-            <th scope="col">Capacity</th>
-            <th scope="col">Status</th>      
-          </tr>
-        </thead>
-        <tbody>
-            {tablesJSX()}
-        </tbody>
-      </table>
-      
-
-      
-    </main>
+				<table className="table table-hover m-1">
+					<thead className="thead-light">
+						<tr>
+							<th scope="col">Table ID</th>
+							<th scope="col">Table Name</th>
+							<th scope="col">Capacity</th>
+							<th scope="col">Status</th>
+							<th scope="col">Reservation ID</th>
+							<th scope="col">Finish</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						{tablesJSX()}
+					</tbody>
+				</table>
+		</main>
   );
 }
 

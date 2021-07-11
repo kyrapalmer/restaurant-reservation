@@ -1,7 +1,9 @@
 import React from "react";
+//import { useHistory } from "react-router";
 import { finishTable } from "../utils/api";
 
 function TableRow({ table, loadDashboard }) {
+    //const history = useHistory();
     if (!table) return null;
 
     function handleFinish() {
@@ -10,6 +12,7 @@ function TableRow({ table, loadDashboard }) {
 
             finishTable(table.table_id, abortController.signal)
                 .then(loadDashboard);
+
             
                 return () => abortController.abort();
         }
@@ -17,17 +20,18 @@ function TableRow({ table, loadDashboard }) {
 
     return (
         <tr>
-            <th scope="row">{table.table_id}</th>
-            <td>{table.table_name}</td>
-            <td>{table.capacity}</td>
-            {table.status === "occupied" &&
-                <td data-table-id-status={table.table_id}>
-                    <button onClick={handleFinish} type="button">Finish</button>
-                
-                </td>
-            }
-            
-        </tr>
+			<th scope="row">{table.table_id}</th>
+			<td>{table.table_name}</td>
+			<td>{table.capacity}</td>
+			<td data-table-id-status={table.table_id}>{table.status}</td>
+			<td>{table.reservation_id ? table.reservation_id : "--"}</td>
+
+			{table.status === "occupied" &&
+				<td>
+					<button data-table-id-finish={table.table_id} onClick={handleFinish} type="button">Finish</button>
+				</td>
+			}
+		</tr>
     )
 }
 
